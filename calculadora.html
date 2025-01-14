@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Comissões</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background-color: #e6eaed;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            width: 85%;
+            max-width: 1100px;
+            box-sizing: border-box;
+        }
+        .logo {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
+        }
+        .content {
+            display: flex;
+            gap: 20px;
+        }
+        .section {
+            flex: 1;
+            text-align: center;
+
+
+        }
+        .section2 {
+            flex: 1;
+            text-align: center;
+
+
+        }
+        .input-group {
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            text-align: left;
+            margin-left: 105px;
+        }
+        .input-group input {
+            width: 60%;
+            padding: 8px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        
+        }
+     
+        button {
+            padding: 10px 15px;
+            background-color: #00c853;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 10px;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #007b33;
+        }
+        .results {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <img src="logo.png" alt="Logo da Empresa" width="200">
+        </div>
+
+        <div class="content">
+            <!-- Calculadora de Comissões -->
+            <div class="section">
+                <h2>Calculadora de Taxas</h2>
+
+                <div class="input-group">
+                    <label for="valorLiquido">Valor Bruto ($):</label>
+                    <input type="text" id="valorLiquido" oninput="formatarNumero(this)">
+                </div>
+
+                <div class="input-group">
+                    <label for="taxaPercentual">Porcentagem da Taxa (%):</label>
+                    <input type="text" id="taxaPercentual" oninput="formatarNumero(this)">
+                </div>
+
+                <div class="input-group">
+                    <label for="taxaFixa">Taxa Fixa ($):</label>
+                    <input type="text" id="taxaFixa" oninput="formatarNumero(this)">
+                </div>
+
+                <button onclick="calcularComissoes()">Calcular</button>
+
+                <div id="resultados" class="results" style="display: none;"></div>
+            </div>
+
+            <!-- Comissões -->
+            <div class="section2">
+                <h2>Comissões</h2>
+                <div class="input-group">
+                    <label for="quantidadeAfiliados">Quantidade de Afiliados:</label>
+                    <input type="number" id="quantidadeAfiliados" min="0" step="1" onchange="gerarCamposAfiliados()">
+                </div>
+
+                <div id="camposAfiliados"></div>
+
+                <div class="input-group">
+                    <label for="quantidadeCoprodutores">Quantidade de Coprodutores:</label>
+                    <input type="number" id="quantidadeCoprodutores" min="0" step="1" onchange="gerarCamposCoprodutores()">
+                </div>
+
+                <div id="camposCoprodutores"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function formatarNumero(input) {
+            let valor = input.value.replace(/[^\d]/g, "");
+            if (valor) {
+                valor = (parseFloat(valor) / 100).toLocaleString("pt-BR", {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                });
+            }
+            input.value = valor;
+        }
+
+        function gerarCamposAfiliados() {
+            const quantidade = parseInt(document.getElementById('quantidadeAfiliados').value) || 0;
+            const container = document.getElementById('camposAfiliados');
+            container.innerHTML = '';
+
+            for (let i = 1; i <= quantidade; i++) {
+                const div = document.createElement('div');
+                div.classList.add('input-group');
+                div.innerHTML = `
+                    <label for="comissaoAfiliado${i}">Comissão Afiliado ${i} (%):</label>
+                    <input type="text" id="comissaoAfiliado${i}" oninput="formatarNumero(this)">
+                `;
+                container.appendChild(div);
+            }
+        }
+
+        function gerarCamposCoprodutores() {
+            const quantidade = parseInt(document.getElementById('quantidadeCoprodutores').value) || 0;
+            const container = document.getElementById('camposCoprodutores');
+            container.innerHTML = '';
+
+            for (let i = 1; i <= quantidade; i++) {
+                const div = document.createElement('div');
+                div.classList.add('input-group');
+                div.innerHTML = `
+                    <label for="comissaoCoprodutor${i}">Comissão Coprodutor ${i} (%):</label>
+                    <input type="text" id="comissaoCoprodutor${i}" oninput="formatarNumero(this)">
+                `;
+                container.appendChild(div);
+            }
+        }
+
+        function calcularComissoes() {
+            try {
+                const valorLiquido = parseFloat(document.getElementById('valorLiquido').value.replace(/\./g, '').replace(',', '.'));
+                const taxaPercentual = parseFloat(document.getElementById('taxaPercentual').value.replace(/\./g, '').replace(',', '.'));
+                const taxaFixa = parseFloat(document.getElementById('taxaFixa').value.replace(/\./g, '').replace(',', '.'));
+
+                if (isNaN(valorLiquido) || isNaN(taxaPercentual) || isNaN(taxaFixa)) {
+                    alert('Por favor, insira valores válidos para o valor líquido, a taxa percentual e a taxa fixa.');
+                    return;
+                }
+
+                const comissoesAfiliados = [];
+                const comissoesCoprodutores = [];
+
+                const quantidadeAfiliados = parseInt(document.getElementById('quantidadeAfiliados').value) || 0;
+                for (let i = 1; i <= quantidadeAfiliados; i++) {
+                    const percentual = parseFloat(document.getElementById(`comissaoAfiliado${i}`).value.replace(/\./g, '').replace(',', '.')) || 0;
+                    comissoesAfiliados.push(percentual);
+                }
+
+                const quantidadeCoprodutores = parseInt(document.getElementById('quantidadeCoprodutores').value) || 0;
+                for (let i = 1; i <= quantidadeCoprodutores; i++) {
+                    const percentual = parseFloat(document.getElementById(`comissaoCoprodutor${i}`).value.replace(/\./g, '').replace(',', '.')) || 0;
+                    comissoesCoprodutores.push(percentual);
+                }
+
+                const valorTaxaPercentual = (valorLiquido * taxaPercentual) / 100;
+                const valorTotalTaxas = valorTaxaPercentual + taxaFixa;
+                let valorRestante = valorLiquido - valorTotalTaxas;
+
+                if (valorRestante < 0) {
+                    alert('O valor restante após taxas é negativo. Verifique os valores inseridos.');
+                    return;
+                }
+
+                let resultadoHtml = `<p><strong>Valor Líquido:</strong> $ ${valorRestante.toFixed(2)}</p>`;
+                resultadoHtml += `<p><strong>Taxas:</strong> $ ${valorTotalTaxas.toFixed(2)}</p>`;
+
+                comissoesAfiliados.forEach((percentual, index) => {
+                    const valorComissao = (valorRestante * percentual) / 100;
+                    valorRestante -= valorComissao;
+                    resultadoHtml += `<p>Comissão Afiliado ${index + 1}: $ ${valorComissao.toFixed(2)}</p>`;
+                });
+
+                comissoesCoprodutores.forEach((percentual, index) => {
+                    const valorComissao = (valorRestante * percentual) / 100;
+                    valorRestante -= valorComissao;
+                    resultadoHtml += `<p>Comissão Coprodutor ${index + 1}: $ ${valorComissao.toFixed(2)}</p>`;
+                });
+
+                resultadoHtml += `<p><strong>Valor Final para o Produtor:</strong> $ ${valorRestante.toFixed(2)}</p>`;
+
+                const resultadosDiv = document.getElementById('resultados');
+                resultadosDiv.innerHTML = resultadoHtml;
+                resultadosDiv.style.display = 'block';
+            } catch (error) {
+                alert(error.message);
+            }
+        }
+    </script>
+</body>
+</html>
